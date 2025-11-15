@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+jinja2
+aiofiles
+python-multipart
+htmx==1.9.2
