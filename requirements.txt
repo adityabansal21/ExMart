@@ -4,4 +4,6 @@ sqlmodel
 jinja2
 aiofiles
 python-multipart
-htmx==1.9.2
+htmx
+passlib[bcrypt]
+python-jose[cryptography]
