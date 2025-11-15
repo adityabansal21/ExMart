@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>B2B Marketplace</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="manifest" href="/static/manifest.json">
+  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+</head>
+<body>
+<nav class="navbar navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand" href="/">B2B Marketplace</a>
+    <form class="d-flex" action="/" method="get">
+      <input class="form-control me-2" name="q" placeholder="Search products" value="{{ q }}">
+      <button class="btn btn-outline-primary" type="submit">Search</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div class="row">
+    {% for p in products %}
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ p.title }}</h5>
+          <p class="card-text">{{ p.description[:140] }}{% if p.description|length>140 %}...{% endif %}</p>
+          <p class="mb-1"><strong>{% if p.price_from %}From ₹{{ p.price_from|int }}{% else %}Price on request{% endif %}</strong></p>
+          <a href="/product/{{ p.id }}" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/sw.js').catch(console.error);
+  }
+</script>
+</body>
+</html>
