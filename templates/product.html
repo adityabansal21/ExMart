@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{ product.title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container py-3">
+  <a href="/" class="btn btn-sm btn-outline-secondary mb-2">← Back</a>
+  <div class="card">
+    <div class="card-body">
+      <h3>{{ product.title }}</h3>
+      <p class="text-muted">Posted: {{ product.created_at }}</p>
+      <p>{{ product.description }}</p>
+      <p><strong>{% if product.price_from %}From ₹{{ product.price_from|int }}{% else %}Price on request{% endif %}</strong></p>
+      <hr>
+      <h5>Enquire about this product</h5>
+      {% if request.query_params.get('sent') %}
+        <div class="alert alert-success">Enquiry sent to supplier. They will contact you soon.</div>
+      {% endif %}
+      <form action="/enquire" method="post">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <div class="mb-3">
+          <label class="form-label">Your name</label>
+          <input class="form-control" name="buyer_name" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Message</label>
+          <textarea class="form-control" name="message" rows="3" required>Hi, I'm interested in {{ product.title }}. Please share MOQ & price.</textarea>
+        </div>
+        <button class="btn btn-primary">Send Enquiry</button>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>
