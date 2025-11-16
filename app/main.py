@@ -4,6 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from . import crud, models
 from typing import Optional
+from fastapi import UploadFile, File
+from pathlib import Path
 
 app = FastAPI(title="B2B Marketplace - Starter")
 
@@ -50,3 +52,81 @@ def product_detail(request: Request, product_id: int):
 def enquire(product_id: int = Form(...), buyer_name: str = Form(...), message: str = Form(...)):
     e = crud.create_enquiry(product_id=product_id, buyer_name=buyer_name, message=message)
     return RedirectResponse(url=f"/product/{product_id}?sent=1", status_code=303)
+
+
+@app.get("/supplier/onboard", response_class=HTMLResponse)
+def supplier_onboard_form(request: Request):
+    return templates.TemplateResponse("supplier_onboard.html", {"request": request})
+
+@app.post("/supplier/onboard")
+async def supplier_onboard_submit(
+    request: Request,
+    company_name: str = Form(None),
+    brand_name: str = Form(None),
+    business_type: str = Form(None),
+    industry_category: str = Form(None),
+    year_of_establishment: str = Form(None),
+
+    contact_person: str = Form(None),
+    designation: str = Form(None),
+    mobile_number: str = Form(None),
+    alt_mobile_number: str = Form(None),
+    email: str = Form(None),
+
+    registered_address: str = Form(None),
+    state: str = Form(None),
+    district: str = Form(None),
+    pincode: str = Form(None),
+    google_map_location: str = Form(None),
+
+    gst_number: str = Form(None),
+    udysm_msme: str = Form(None),
+    pam_number: str = Form(None),
+    pbu_category: str = Form(None),
+    num_employees: str = Form(None),
+
+    description: str = Form(None),
+    key_products: str = Form(None),
+    intro_video: str = Form(None),
+
+    banner_image: UploadFile = File(None),
+    catalog_pdf: UploadFile = File(None),
+):
+    # save files (if present)
+    banner_path = None
+    catalog_path = None
+    if banner_image:
+        banner_path = save_upload_file(banner_image)  # returns relative path like static/uploads/abcd.png
+    if catalog_pdf:
+        catalog_path = save_upload_file(catalog_pdf)
+
+    company_data = {
+        "company_name": company_name,
+        "brand_name": brand_name,
+        "business_type": business_type,
+        "industry_category": industry_category,
+        "year_of_establishment": year_of_establishment,
+        "contact_person": contact_person,
+        "designation": designation,
+        "mobile_number": mobile_number,
+        "alt_mobile_number": alt_mobile_number,
+        "email": email,
+        "registered_address": registered_address,
+        "state": state,
+        "district": district,
+        "pincode": pincode,
+        "google_map_location": google_map_location,
+        "gst_number": gst_number,
+        "udysm_msme": udysm_msme,
+        "pam_number": pam_number,
+        "pbu_category": pbu_category,
+        "num_employees": num_employees,
+        "description": description,
+        "key_products": key_products,
+        "intro_video": intro_video,
+    }
+
+    cp = create_company_profile(company_data, banner_filename=banner_path, catalog_filename=catalog_path)
+    # redirect to a confirmation or preview page
+    return RedirectResponse(url=f"/supplier/onboard?submitted=1&id={cp.id}", status_code=303)
+
