@@ -1,7 +1,10 @@
+import os
 from sqlmodel import Session, select
-from .models import Product, Supplier, Enquiry
+from .models import Product, Supplier, Enquiry, CompanyProfile
 from sqlmodel import SQLModel, create_engine
 from typing import List, Optional
+from . import crud  # existing import style
+
 
 engine = create_engine("sqlite:///./db.sqlite", echo=False)
 
@@ -42,3 +45,22 @@ def create_enquiry(product_id:int, buyer_name:str, message:str) -> Enquiry:
         e = Enquiry(product_id=product_id, buyer_name=buyer_name, message=message)
         s.add(e); s.commit(); s.refresh(e)
         return e
+
+UPLOAD_DIR = "static/uploads"
+
+def create_company_profile(
+    company_data: dict,
+    banner_filename: Optional[str] = None,
+    catalog_filename: Optional[str] = None
+) -> CompanyProfile:
+    # company_data is a dict with keys matching CompanyProfile fields
+    with get_session() as s:
+        cp = CompanyProfile(**company_data)
+        if banner_filename:
+            cp.banner_image_path = banner_filename
+        if catalog_filename:
+            cp.catalog_pdf_path = catalog_filename
+        s.add(cp)
+        s.commit()
+        s.refresh(cp)
+        return cp
