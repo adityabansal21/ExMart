@@ -4,7 +4,8 @@ from .models import Product, Supplier, Enquiry, CompanyProfile
 from sqlmodel import SQLModel, create_engine
 from typing import List, Optional
 from . import crud  # existing import style
-
+import uuid
+from fastapi import UploadFile
 
 engine = create_engine("sqlite:///./db.sqlite", echo=False)
 
@@ -64,3 +65,23 @@ def create_company_profile(
         s.commit()
         s.refresh(cp)
         return cp
+
+
+
+
+def save_upload_file(upload_file: UploadFile, dest_folder: str = UPLOAD_DIR) -> str:
+    """
+    Saves UploadFile to dest_folder with a unique name and returns relative path.
+    """
+    os.makedirs(dest_folder, exist_ok=True)
+    ext = ""
+    if upload_file.filename and "." in upload_file.filename:
+        ext = "." + upload_file.filename.rsplit(".", 1)[1]
+    unique_name = f"{uuid.uuid4().hex}{ext}"
+    path = os.path.join(dest_folder, unique_name)
+    # write file
+    with open(path, "wb") as f:
+        content = upload_file.file.read()
+        f.write(content)
+    # return path relative to project root (can be used in templates as /static/uploads/...)
+    return path
